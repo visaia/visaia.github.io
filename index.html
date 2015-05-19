@@ -113,6 +113,87 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-server" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/05/19/server/">阿里云服务器ECS：安装Nginx和Node.js</a>
+    </h1>
+  
+
+        
+        <a href="/2015/05/19/server/" class="archive-article-date">
+  	<time datetime="2015-05-19T11:50:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-05-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>摘要：这是一篇关于如何在阿里云服务器ECS上安装Nginx和Node.js的文章。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在网络上兜兜转转，百度、各种博客、阿里的技术文档，踩了不少坑，最终还是折腾好了，就想着还是把它记录下来吧。</p>
+<h2 id="购买服务器"><a href="#购买服务器" class="headerlink" title="购买服务器"></a>购买服务器</h2><p>先登录到阿里云，在产品与服务里面，找到云服务器ECS</p>
+<p>如果是试水的，按最低配就好了</p>
+<p>镜像：其实就是服务器使用的操作系统</p>
+<p>选择公共镜像  操作系统选择CentOS  版本可以使用 7.x  64位 </p>
+<h2 id="Putty"><a href="#Putty" class="headerlink" title="Putty"></a>Putty</h2><p>我的电脑是Windows系统，可以使用 PuTTY 这个小工具，来远程的管理我们的 Linux 系统的阿里云服务器</p>
+<p>下载这个工具，打开 putty.org ，在 Download PuTTY 这里，点击 here；然后找到 PuTTY 的下载的链接 ，点击这个 putty.exe ，可以把它下载下来</p>
+<p>这个小工具不需要安装，可以直接使用，直接双击打开</p>
+<p>在 Host Name 这里，要输入我们的服务器的公网的IP地址 ，在服务器的管理后台，可以找到这个地址</p>
+<p>Port ，是端口号，可以使用默认的 22 ，下面的 Connection type ，连接的类型，选择默认的 SSH ，然后点击 Open</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">login as:</div></pre></td></tr></table></figure>
+<p>输入root    回车</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">root@119.12.32.184<span class="string">'s password:</span></div></pre></td></tr></table></figure>
+<p>输入密码   回车</p>
+<p>在完成购买服务器以后，这个 root 用户的初始的密码会发到我们的手机里</p>
+<p>已经登录到了 Linux 系统的阿里云服务器上了</p>
+<h2 id="安装Nginx"><a href="#安装Nginx" class="headerlink" title="安装Nginx"></a>安装Nginx</h2><p>浏览器打开 nginx.org，点击右侧 documentation，点击 Installing nginx ，点击 packages<br>找到 Pre-Built Packages for Mainline version</p>
+<p>回到服务器，这里需要创建一个文件，/etc/yum.repos.d/nginx.repo , 如下<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#vi /etc/yum.repos.d/nginx.repo</span></div></pre></td></tr></table></figure></p>
+<p>按一下键盘 i ，进行编辑，把网页的如下内容复制过来<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[nginx]</div><div class="line">name=nginx repo</div><div class="line">baseurl=http://nginx.org/packages/mainline/OS/OSRELEASE/<span class="variable">$basearch</span>/</div><div class="line">gpgcheck=0</div><div class="line">enabled=1</div></pre></td></tr></table></figure></p>
+<p>然后把OS，改成 centos ，把osrelease 改成 7<br>注意：因为我买的服务器是centos的7.x以上版本<br>然后保存，按一下键盘Esc键，接着按 :wq  回车</p>
+<p>输入如下命令进行安装<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install nginx -y</div></pre></td></tr></table></figure></p>
+<p>启动nginx<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl start nginx</div></pre></td></tr></table></figure></p>
+<p>开机自启<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl <span class="built_in">enable</span> nginx</div></pre></td></tr></table></figure></p>
+<p>如果是操作系统是centos 6.x 版本的，上面两条命令是没办法用的</p>
+<p>回到浏览器 … 再访问一下 服务器的公网ip<br>现在打开的就是 nginx 的欢迎界面 ..</p>
+<h2 id="安装Node-js"><a href="#安装Node-js" class="headerlink" title="安装Node.js"></a>安装Node.js</h2><h3 id="安装Git"><a href="#安装Git" class="headerlink" title="安装Git"></a>安装Git</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install git</div></pre></td></tr></table></figure>
+<h3 id="通过-git-指令下载nvm"><a href="#通过-git-指令下载nvm" class="headerlink" title="通过 git 指令下载nvm"></a>通过 git 指令下载nvm</h3><p>执行指令如下，我们把nvm下载到 /root/git/ 中去<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#pwd</span></div><div class="line">/root</div><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#mkdir git</span></div><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#cd git</span></div><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ git]<span class="comment">#git clone https://github.com/creationix/nvm.git</span></div></pre></td></tr></table></figure></p>
+<h3 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h3><p>这里是要修改 .bashrc 文件，如果不清楚其位置，可以回到根目录执行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#find . -name "*.bashrc" -print</span></div><div class="line">./.bashrc</div><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#vim ./.bashrc</span></div></pre></td></tr></table></figure></p>
+<p>然后通过 vim 修改 ./.bashrc 文件，在文件开头加入下面两行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#vim ./.bashrc</span></div><div class="line"><span class="built_in">export</span> NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node</div><div class="line"><span class="built_in">source</span> ~/git/nvm/nvm.sh</div></pre></td></tr></table></figure></p>
+<p>然后保存，按一下键盘Esc键，接着按 :wq  回车<br>其中第一行是修改nvm镜像路径到阿里，第二行才是把 nvm 添加到系统环境中去。</p>
+<p>保存后执行指令让配置生效：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#source .bashrc</span></div></pre></td></tr></table></figure></p>
+<h3 id="用nvm安装nodejs"><a href="#用nvm安装nodejs" class="headerlink" title="用nvm安装nodejs"></a>用nvm安装nodejs</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@iZwz96brl5j5aljqu23x4t2tZ ~]<span class="comment">#nvm install node</span></div></pre></td></tr></table></figure>
+<p>便可安装Node.js</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2015/05/19/server/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+  
     <article id="post-firstblog" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
