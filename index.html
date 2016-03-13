@@ -113,6 +113,91 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-webpack" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/03/13/webpack/">webpack</a>
+    </h1>
+  
+
+        
+        <a href="/2016/03/13/webpack/" class="archive-article-date">
+  	<time datetime="2016-03-13T04:52:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>webpack是目前流行的一款模块化打包工具。</p>
+<p>webpack定义：一款前端资源模块化和打包工具。</p>
+<p>webpack作用：</p>
+<ol>
+<li>将许多松散的模块按照依赖关系和规则打包成符合生产环境环境部署的前端资源。</li>
+<li>将按需加载的模块进行代码分割，等到实际需要的时候再异步加载。</li>
+<li>通过加载器loader的转换，所有的前端资源都可以看作是模块。比如说CommonJS模块，AMD模块，ES6模块，css，sass，json，图片等。</li>
+</ol>
+<h2 id="什么是前端资源"><a href="#什么是前端资源" class="headerlink" title="什么是前端资源"></a>什么是前端资源</h2><p>所谓前端资源，就是我们在创建html时，引入的script，link，img，json等文件。webpack足够的优秀，只需要在html文件中引入一个js文件，在定义一个入口文件js，用于存放依赖的模块，就可以将其他前端资源按照依赖关系和规则打包。</p>
+<p>以前我们需要这样来引入文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;link rel=<span class="string">"stylesheet"</span> href=<span class="string">"style/stylesheets/main.css"</span>/ &gt;</div><div class="line">&lt;script src=<span class="string">'script/jquery.min.js'</span>&gt;&lt;/script&gt;</div><div class="line">&lt;script src=<span class="string">'script/bootstrap.js'</span>&gt;&lt;/script&gt;</div><div class="line">&lt;script src=<span class="string">"script/index.js"</span> &gt;&lt;/script&gt;</div></pre></td></tr></table></figure>
+<p>index.js依赖bootstrap.js，而bootstrap又依赖于jquery。我们必须按照DOM顺序来写每一个js文件。</p>
+<p>现在只需要在html中引入一个主文件index.js，其他依赖的前端资源都写在另外一个入口文件js中，这个入口文件不用写在html中，然后配置好config，在cmd中输入webpack执行编译，所有前端资源都被引入了。并且webpack会帮我们入口文件entry.js的每个模块的类型和依赖关系，等到需要的时候再按需加载。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">//html</div><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=<span class="string">"en"</span>&gt;</div><div class="line">&lt;head&gt;</div><div class="line">&lt;meta charset=<span class="string">"UTF-8"</span>&gt;</div><div class="line">&lt;title&gt;Document&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">&lt;script src=<span class="string">'js/main.js'</span>&gt;&lt;/script&gt;</div><div class="line">&lt;!-- 引入引入主模块 main.js --&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">//entry.js</div><div class="line">import $ from <span class="string">'jquery'</span>;</div><div class="line">import other...</div></pre></td></tr></table></figure>
+<h2 id="什么是模块"><a href="#什么是模块" class="headerlink" title="什么是模块"></a>什么是模块</h2><p>在webpack中，所有的前端资源都是模块，可以通过加载器loader进行转换。在javascript方面，有几大模块系统，CommonJS模块，AMD模块，CMD模块，ES6模块。谈谈我对这几大模块的理解。</p>
+<h4 id="CommonJS"><a href="#CommonJS" class="headerlink" title="CommonJS"></a>CommonJS</h4><p>在CommonJS中，有一个全局方法require()，用于加载依赖模块</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">//main.js</div><div class="line">var jquery = require(<span class="string">'jquery'</span>);</div><div class="line">var bootstrap = require(<span class="string">'bootstrap'</span>);</div></pre></td></tr></table></figure>
+<p>主文件main.js模块依赖于这两个模块，CommonJS缺点就是同步加载。也就是说，会先加载jquery模块，等到jquery加载完了再去加载bootstrap模块。引用阮一峰老师的话”同步加载意味着阻塞加载，当依赖的模块太大时，浏览器会处于假死的状态。”</p>
+<p>假死意味着浏览器任然处在加载中，仍然还是空白页面。这种假死的状态带来的后果就是用户的离开。</p>
+<h4 id="AMD模块"><a href="#AMD模块" class="headerlink" title="AMD模块"></a>AMD模块</h4><p>AMD也叫异步模块定义，英文Asynchronous Module Definition。AMD是requirejs对模块定义时的产出。它采用异步方式加载模块，每个独立模块的加载不影响回调函数中定义的模块的运行。在回调函数中定义一个模块，只有当依赖的模块加载完成之后，该模块才会编译执行。AMD也采用require()语句来加载一个模块，但是不同于CommonJS，它有两个参数。第一个参数是数组，需要传入依赖模块；第二个参数是回调函数，回调函数中也接受参数，而参数是形式参数，来自于每一个依赖模块。举个例子。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">//main.js</div><div class="line">require([<span class="string">'jquery'</span>,<span class="string">'bootstrap'</span>],<span class="keyword">function</span>($, boot)&#123;</div><div class="line">    //写入的模块</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>主模块main.js依赖于jquery,Bootstrap模块，main只有在这两个模块加载完成之后才会编译执行main定义的模块，属于同步加载。而在两个依赖模块中，属于异步加载。也就是说bootstrap不用等到jquery加载完成之后再加载，被依赖的模块是哪一个模块小，就先加载哪一个，这就避免了CommonJS模块中同步加载依赖模块而出现浏览器假死的状态。<br>稍微总结一下<br>主模块需要等到依赖模块加载完成之后才编译执行，属于同步加载；而被依赖模块之间属于异步加载，哪一个模块小，就先加载哪一个。</p>
+<p>AMD模块的一大不足就是所有依赖的模块都需要提前加载，依赖前置。</p>
+<h4 id="CMD模块"><a href="#CMD模块" class="headerlink" title="CMD模块"></a>CMD模块</h4><p>CMD模块跟AMD很相似</p>
+<p>对于依赖的模块，AMD是提前执行，CMD是延迟执行。<br>CMD推从依赖就近，AMD推从依赖前置</p>
+<p>依赖就近的意思就是当我需要某个模块的时候再去异步加载。也就是按需要加载前端资源，懒加载。<br>可以用八个字来总结CMD。依赖就近，延迟执行。</p>
+<h4 id="ES6模块"><a href="#ES6模块" class="headerlink" title="ES6模块"></a>ES6模块</h4><p>ES6模块的设计思想，是尽量的静态化，使得编译时就能确定模块的依赖关系，以及输入和输出的变量。ES6中与CommonJS，AMD模块一个区别在于ES6是通过import关键字来输入某个模块提供的功能，export或者export default规定该模块的对外接口，通俗易懂一些，也就是暴露该模块定义的一些属性和方法，供其他模块调用。</p>
+<p>ES6和CommonJS,AMD模块最大的区别在于，ES6模块可以实现编译时加载，简单的说就是按需加载。而后两种方法只能是运行时加载。上一段代码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ES6：</div><div class="line">import &#123;get, post, ajax&#125; from <span class="string">'jQuery'</span>;</div><div class="line"></div><div class="line">CommonJS：</div><div class="line">var</div></pre></td></tr></table></figure>
+<h2 id="什么是模块化"><a href="#什么是模块化" class="headerlink" title="什么是模块化"></a>什么是模块化</h2><p>webpack是支持以上的模块系统的。在头脑中要形成某种技术的知识框架才能学好该技术，所以花费了一些时间做了些介绍。模块化就是webpack使用某种方法将每一个松散的模块按照依赖关系编译的过程。webpack需要一个入口js文件，主模块js文件，config文件就可以实现前端资源模块化。看个简单的例子。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;!DOCTYPE html&gt;</div><div class="line">&lt;html lang=<span class="string">"en"</span>&gt;</div><div class="line">&lt;head&gt;</div><div class="line">&lt;meta charset=<span class="string">"UTF-8"</span>&gt;</div><div class="line">&lt;title&gt;Document&lt;/title&gt;</div><div class="line">&lt;/head&gt;</div><div class="line">&lt;body&gt;</div><div class="line">&lt;script src=<span class="string">'js/main.js'</span>&gt;&lt;/script&gt;</div><div class="line">&lt;!-- 引入主模块 main.js --&gt;</div><div class="line">&lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line">//入口文件 entry.js </div><div class="line">document.write(<span class="string">"&lt;h1&gt;I'm peter！&lt;/h1&gt;"</span>);</div><div class="line"></div><div class="line">//webpack.config.js</div><div class="line">module.exports = &#123;</div><div class="line">    entry :<span class="string">'./app/js/entry.js'</span>,</div><div class="line">    output : &#123;</div><div class="line">        path: <span class="string">'./dist/js'</span></div><div class="line">        filename: <span class="string">'main.js'</span></div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">//打开cmd，在文件目录下，输入webpack执行编译就可以看到document.write()的结果了。</div></pre></td></tr></table></figure>
+<h2 id="什么叫按需加载？"><a href="#什么叫按需加载？" class="headerlink" title="什么叫按需加载？"></a>什么叫按需加载？</h2><p>webpack的其中一个作用就是可以将按需加载的模块进行代码分割，根据实际需要进行异步加载。按需加载，顾名思义就是按照用户需要某个功能的时候在加载相应的模块。<br>举个例子，当我们在浏览一些图片网站的时候，如果图片在你打开该网站的时候就全部一起加载好，那造成的后果就是页面会保持一段时间的空白状态，直到全部图片加载完成之后才会显示。如果是按需要加载，就可以在用户刚进入页面的时候加载可视区域窗口的图片，当用户拖动滚动条下拉的时候再去加载图片，这样不仅减少HTTP请求，同时提高了页面加载速度。<br>在举一个例子。在单页应用中，为了减少http请求次数，会把所有js文件合并为一个文件，这样请求数量减少了，可是请求的文件体积却变大了。按需加载就可以解决这个问题。</p>
+<h2 id="如何实现按需加载？"><a href="#如何实现按需加载？" class="headerlink" title="如何实现按需加载？"></a>如何实现按需加载？</h2><p>ES6的一大涉及思想就是想让前端资源静态化，在编译的过程中，而非运行过程中就确定模块的依赖关系。webpack在编译的过程中，就会对整个代码进行静态分析，分析出各个模块的类型和它们依赖关系，然后将不同类型的模块提交给适配的加载器来处理。<br>比如一个用 Less 写的样式模块，可以先用 Less-Loader加载器将它转成一个CSS 模块，在通过 CSS 模块把他插入到页面的 style 标签中执行。并且在你编译的时候就确定了依赖关系。</p>
+<h2 id="什么是plugins？"><a href="#什么是plugins？" class="headerlink" title="什么是plugins？"></a>什么是plugins？</h2><p>webpack跟我们提供了很多内置的插件，可以实现loader做不到的事情。</p>
+<p>我们在入口文件中import（或者require）进一些css文件时，webpack会帮我们把css样式与其他前端资源打包到output的filename文件中，然后在head标签中会自动加载一个style标签。但是，我们可能会需要独立出一个css文件，这时候就需要使用extract-text-webpack-plugin插件了。具体用法如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">var ExtractTextPlugin = require(<span class="string">"extract-text-webpack-plugin"</span>);</div><div class="line">//这里需要使用CommonJS语法来引入一个依赖。</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">    module: &#123;</div><div class="line">        loaders: [</div><div class="line">            &#123; <span class="built_in">test</span>: /\.css$/, loader: ExtractTextPlugin.extract(<span class="string">"style-loader"</span>, <span class="string">"css-loader"</span>) &#125;</div><div class="line">            //loader的执行顺序是 先执行css-loader给css文件加上地址，然后执行style-loader在头部加上style标签。</div><div class="line">        ]</div><div class="line">    &#125;,</div><div class="line">    plugins: [</div><div class="line">        new ExtractTextPlugin(<span class="string">"styles.css"</span>)</div><div class="line">        //使用plugins选项对象，使用new调用ExtractTextPlugin构造函数，传入的参数是需要单独生成的css文件，路径与output中的path路径相同。详细的参数可以到extract-text-webpack-plugin官网查看。</div><div class="line">    ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当我们成功生成了单独的css文件之后，就可以通过link标签引入了。</p>
+<h2 id="什么是loader？"><a href="#什么是loader？" class="headerlink" title="什么是loader？"></a>什么是loader？</h2><p>Webpack 本身只能处理原生的 JavaScript 模块，但是 loader 转换器可以将各种类型的资源转换成 JavaScript 模块。这样，任何资源都可以成为 Webpack 可以处理的模块。每一个loader都会针对入口文件entry.js的依赖模块引入的前端资源进行转换。站在更高的角度上看问题，我们在webpack.config.js里面的所有配置都是针对入口文件的，始终记住这点很重要。因为这就是我们配置webpack.config.js的目的。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2016/03/13/webpack/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+  
     <article id="post-React" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -372,7 +457,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2015 visaia
+    		&copy; 2016 visaia
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
